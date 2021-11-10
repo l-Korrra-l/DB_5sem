@@ -1,12 +1,12 @@
--- DROP TABLE FACULTY
+DROP TABLE FACULTY;
 CREATE TABLE FACULTY
   (
    FACULTY      CHAR(10)      NOT NULL,
-   FACULTY_NAME VARCHAR2(50), 
+   FACULTY_NAME VARCHAR2(60), 
    CONSTRAINT PK_FACULTY PRIMARY KEY(FACULTY) 
   );
      
-delete FACULTY;
+--delete FACULTY;
 insert into FACULTY   (FACULTY,   FACULTY_NAME )
              values  ('ИДиП',   'Издателькое дело и полиграфия');
 insert into FACULTY   (FACULTY,   FACULTY_NAME )
@@ -21,17 +21,17 @@ insert into FACULTY   (FACULTY,   FACULTY_NAME )
             values  ('ТОВ',     'Технология органических веществ');
 
 --------------------------------------------------------------------------------------------
--- DROP TABLE PULPIT
+DROP TABLE PULPIT;
 CREATE TABLE PULPIT 
 (
- PULPIT       CHAR(10)      NOT NULL,
- PULPIT_NAME  VARCHAR2(100), 
+ PULPIT       CHAR(15)      NOT NULL,
+ PULPIT_NAME  VARCHAR2(120), 
  FACULTY      CHAR(10)      NOT NULL, 
  CONSTRAINT FK_PULPIT_FACULTY FOREIGN KEY(FACULTY)   REFERENCES FACULTY(FACULTY), 
  CONSTRAINT PK_PULPIT PRIMARY KEY(PULPIT) 
  ); 
  
-delete PULPIT;  
+--delete PULPIT;  
 insert into PULPIT   (PULPIT,    PULPIT_NAME,                                                   FACULTY )
              values  ('ИСиТ',    'Иформационный систем и технологий ',                         'ИДиП'  );
 insert into PULPIT   (PULPIT,    PULPIT_NAME,                                                   FACULTY )
@@ -63,17 +63,18 @@ insert into PULPIT   (PULPIT,    PULPIT_NAME,                                   
 insert into PULPIT   (PULPIT,    PULPIT_NAME,                                                      FACULTY)
              values  ('МиЭП',   'Менеджмента и экономики природопользования',                      'ИЭФ');    
 ------------------------------------------------------------------------------------------------------------------------        - DROP  TABLE TEACHER
+drop table teacher;
 CREATE TABLE TEACHER
  ( 
   TEACHER       CHAR(10) NOT  NULL,
-  TEACHER_NAME  VARCHAR2(50), 
-  PULPIT        CHAR(10) NOT NULL, 
+  TEACHER_NAME  VARCHAR2(60), 
+  PULPIT        CHAR(15) NOT NULL, 
   CONSTRAINT PK_TEACHER  PRIMARY KEY(TEACHER), 
   CONSTRAINT FK_TEACHER_PULPIT FOREIGN   KEY(PULPIT)   REFERENCES PULPIT(PULPIT)
  ) ;
  
  
-delete  TEACHER;
+--delete  TEACHER;
 insert into  TEACHER    (TEACHER,   TEACHER_NAME, PULPIT )
                        values  ('СМЛВ',    'Смелов Владимир Владиславович',  'ИСиТ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
@@ -95,7 +96,7 @@ insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('РМНК',     'Романенко Дмитрий Михайлович',  'ИСиТ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
-                       values  ('ПСТВЛВ',  'Пустовалова Наталия Николаевна', 'ИСиТ' );
+                       values  ('ПСТВ',  'Пустовалова Наталия Николаевна', 'ИСиТ' );
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('?',     'Неизвестный',  'ИСиТ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
@@ -103,11 +104,11 @@ insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ЖЛК',     'Жиляк Надежда Александровна',  'ИСиТ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
-                       values  ('БРТШВЧ',   'Барташевич Святослав Александрович',  'ПОиСОИ');
+                       values  ('БРТШ',   'Барташевич Святослав Александрович',  'ПОиСОИ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ЮДНКВ',   'Юденков Виктор Степанович',  'ПОиСОИ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
-                       values  ('БРНВСК',   'Барановский Станислав Иванович',  'ЭТиМ');
+                       values  ('БРНВ',   'Барановский Станислав Иванович',  'ЭТиМ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('НВРВ',   'Неверов Александр Васильевич',  'МиЭП');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
@@ -115,13 +116,13 @@ insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ДМДК', 'Демидко Марина Николаевна',  'ЛПиСПС');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
-                       values  ('МШКВСК',   'Машковский Владимир Петрович',  'ЛУ');
+                       values  ('МШКВ',   'Машковский Владимир Петрович',  'ЛУ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ЛБХ',   'Лабоха Константин Валентинович',  'ЛВ');
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ЗВГЦВ',   'Звягинцев Вячеслав Борисович',  'ЛЗиДВ'); 
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
-                       values  ('БЗБРДВ',   'Безбородов Владимир Степанович',  'ОХ'); 
+                       values  ('БЗБРД',   'Безбородов Владимир Степанович',  'ОХ'); 
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ПРКПЧК',   'Прокопчук Николай Романович',  'ТНХСиППМ'); 
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
@@ -133,17 +134,17 @@ insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
 insert into  TEACHER    (TEACHER,  TEACHER_NAME, PULPIT )
                        values  ('ЖРСК',   'Жарский Иван Михайлович',  'ХТЭПиМЭЕ'); 
 ---------------------------------------------------------------------------------------------------------------------
--- DROP TABLE SUBJECT 
+DROP TABLE SUBJECT ;
 CREATE TABLE SUBJECT
     (
      SUBJECT      CHAR(10)     NOT NULL, 
-     SUBJECT_NAME VARCHAR2(50)  NOT NULL,
-     PULPIT       CHAR(10)     NOT NULL,  
+     SUBJECT_NAME VARCHAR2(70)  NOT NULL,
+     PULPIT       CHAR(15)     NOT NULL,  
      CONSTRAINT PK_SUBJECT PRIMARY KEY(SUBJECT),
      CONSTRAINT FK_SUBJECT_PULPIT FOREIGN  KEY(PULPIT)  REFERENCES PULPIT(PULPIT)
     );
 
-delete SUBJECT;
+--delete SUBJECT;
 insert into SUBJECT   (SUBJECT,   SUBJECT_NAME,        PULPIT )
                        values ('СУБД',   'Системы управления базами данных',                   'ИСиТ');
 insert into SUBJECT   (SUBJECT,   SUBJECT_NAME,        PULPIT)
@@ -201,14 +202,14 @@ insert into SUBJECT   (SUBJECT,   SUBJECT_NAME,        PULPIT )
 insert into SUBJECT   (SUBJECT,   SUBJECT_NAME,        PULPIT )
                        values ('ПЭХ',    'Прикладная электрохимия',                           'ХТЭПиМЭЕ');          
 ---------------------------------------------------------------------------------------------------------------------
--- DROP TABLE AUDITORIUM_TYPE 
+DROP TABLE AUDITORIUM_TYPE ;
 create table AUDITORIUM_TYPE 
 (
   AUDITORIUM_TYPE   char(10) constraint AUDITORIUM_TYPE_PK  primary key,  
-  AUDITORIUM_TYPENAME  varchar2(30) constraint AUDITORIUM_TYPENAME_NOT_NULL not null         
+  AUDITORIUM_TYPENAME  varchar2(60) constraint AUDITORIUM_TYPENAME_NOT_NULL not null         
 );
 
-delete AUDITORIUM_TYPE;
+--delete AUDITORIUM_TYPE;
 insert into AUDITORIUM_TYPE   (AUDITORIUM_TYPE,   AUDITORIUM_TYPENAME )
                        values  ('ЛК',   'Лекционная');
 insert into AUDITORIUM_TYPE   (AUDITORIUM_TYPE,   AUDITORIUM_TYPENAME )
@@ -220,7 +221,7 @@ insert into AUDITORIUM_TYPE   (AUDITORIUM_TYPE,   AUDITORIUM_TYPENAME )
 insert into AUDITORIUM_TYPE   (AUDITORIUM_TYPE,   AUDITORIUM_TYPENAME )
                        values  ('ЛБ-СК', 'Спец. компьютерный класс');
 ---------------------------------------------------------------------------------------------------------------------
--- DROP TABLE AUDITORIUM 
+DROP TABLE AUDITORIUM ;
 create table AUDITORIUM 
 (
  AUDITORIUM           char(10) primary key,  -- код аудитории
@@ -230,7 +231,7 @@ create table AUDITORIUM
                       references AUDITORIUM_TYPE(AUDITORIUM_TYPE)  
 );
 
-delete  AUDITORIUM;
+--delete  AUDITORIUM;
 insert into  AUDITORIUM   (AUDITORIUM,   AUDITORIUM_NAME, AUDITORIUM_TYPE, AUDITORIUM_CAPACITY )
                        values  ('206-1',   '206-1', 'ЛБ-К', 15);
 insert into  AUDITORIUM   (AUDITORIUM,   AUDITORIUM_NAME, AUDITORIUM_TYPE, AUDITORIUM_CAPACITY)
