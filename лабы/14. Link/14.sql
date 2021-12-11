@@ -83,7 +83,7 @@ commit;
 
 exec MultipleXXX@conToPolee(11,1);
 begin
-dbms_output.put_line(PlusX@conToPolee(10,9));
+dbms_output.put_line(system.PlusX@conToPolee2(10,9));
 end;
 
 drop database link conToPolee;
