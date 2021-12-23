@@ -1,0 +1,30 @@
+SQL> select*from lb18;
+
+        ID TEXT                 DATE_VALU                                       
+---------- -------------------- ---------                                       
+         1 HI                   22-OCT-21                                       
+         2 TEXT2                13-OCT-21                                       
+         3 TEXT3                11-OCT-21                                       
+         4 TEXT4                10-NOV-21                                       
+         6 TEXT5                22-OCT-21                                       
+         7 TEXT45               22-OCT-21                                       
+         8 TEXT46               22-OCT-21                                       
+         9 TEXT88               22-OCT-21                                       
+        10 TEXT456              22-OCT-21                                       
+        11 TEXT6                21-OCT-21                                       
+        12 TEX25                22-OCT-21                                       
+
+        ID TEXT                 DATE_VALU                                       
+---------- -------------------- ---------                                       
+        13 TEXT32               23-OCT-21                                       
+        14 TEXT4                24-OCT-21                                       
+        15 TEXT4                25-OCT-21                                       
+        16 TEXT3                26-OCT-21                                       
+        17 TEXT3                27-OCT-21                                       
+        18 TEXT44               28-OCT-21                                       
+        19 TEXT34               29-OCT-21                                       
+        20 TEXT20               29-OCT-21                                       
+
+19 rows selected.
+
+SQL> spool off;
