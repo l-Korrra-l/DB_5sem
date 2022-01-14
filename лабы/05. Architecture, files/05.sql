@@ -42,6 +42,7 @@ insert into mka_t1 values(3,3);
 --segments list
 select * from dba_segments where tablespace_name like 'MKA%';
 select * from dba_segments;
+
 --SYS_C007394 is index
 
 --4
@@ -149,7 +150,74 @@ SELECT * FROM V$PWFILE_USERS;
 --24
 SELECT * FROM V$DIAG_INFO;
 
---25
+--------------------------------------
+‘айл параметров
+--------------------------------------
+show parameter spfile;--пор€док поиска имен
+select * from V$PARAMETER where name like '%block%';
+select * from V$PARAMETER where name = 'open_cursors';
+select * from V$PARAMETER where name like 'control%';
+--напр€мую мен€ть низ€
+Alter system set open_cursors = 300 scope=spfile;
+Alter system set control_files = 'C:\APP\ORA_INSTALL_USER\ORADATA\ORCL\CONTROL01.CTL, C:\APP\ORA_INSTALL_USER\ORADATA\ORCL\CONTROL02.CTL' scope=spfile;
+--connect /as sysdba
+--shutdown immediate;
+--startup open;
+select * from V$PARAMETER where name = 'open_cursors';
+--loc
+select * from V$PARAMETER where NAME = 'spfile'; --or regedit orahome/database --spfile
+--pfile ora_inst_user/admin/orcl/pfile
+create pfile='p1.ora' from spfile; --as spfile folder
+create spfile='ss.ora' from pfile='p1.ora';
+--------------------------------------
+‘айл паролей -- pwdoracle.ora
+--------------------------------------
+select * from v$PWFILE_USERS;
+show parameter remote_login_passwordfile;
+--new -- orapwd file=name --sys password
+--grant sysdba -> добавление в файл паролей
+--as sysdba ---через файл паролей
+--------------------------------------
+”правл€ющие файлы
+--------------------------------------
+--найти в файле параметров
+select * from V$PARAMETER where name = 'control_files';
+show parameter control_files
+show parameter control
+select name from v$controlfile
 
+--содержимое--настройки
+select type,record_size, records_total from v$controlfile_record_section;
+--change
+--shutdown->change loc in param file-> startup open
+ALTER DATABASE BACKUP CONTROLFILE TO TRACE; --создать сценарий, откорректировать, выполнить
+----------------------------------------
+mess
+-----------------------------------------
+select *from v$diag_info
+---
+жур п
+--
+select *from v$logfile;
+select *from v$log;
+select * from v$database;
+select *from v$archived_log
+
+--
+select * from dba_data_files;
+
+
+Parameters file: C:\app\ora_install_user\product\12.2.0\dbhome_1\database Чspfile
+C:\app\ora_install_user\admin\orcl\pfile Чpfile
+control_files=("C:\app\ora_install_user\oradata\orcl\control01.ctl", "C:\app\ora_install_user\oradata\orcl\control02.ctl")
+
+--trace
+C:\app\ora_install_user\diag\rdbms\orcl\orcl\trace
+
+--new pwd
+orapwd file= name.ora
+
+--mess file
+C:\app\ora_install_user\diag\rdbms\orcl\orcl\alert
 
 
