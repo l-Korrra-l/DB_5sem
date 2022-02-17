@@ -201,7 +201,7 @@ select *from v$diag_info
 select *from v$logfile;
 select *from v$log;
 select * from v$database;
-select *from v$archived_log
+select *from v$archived_log;
 
 --
 select * from dba_data_files;

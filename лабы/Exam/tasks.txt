@@ -1,0 +1,512 @@
+ create or replace procedure delete_orders (am ORDERS.AMOUNT%type)
+is
+    cursor kr11 is select * from ORDERS;
+BEGIN
+    for row_subject in kr11
+        loop
+        if row_subject.AMOUNT > am then DBMS_OUTPUT.PUT_LINE(row_subject.AMOUNT||row_subject.PRODUCT);
+        else
+        delete from ORDERS where AMOUNT < am;
+        end if;
+        end loop;
+    DBMS_OUTPUT.PUT_LINE('ORDERS');
+    exception
+    when no_data_found then
+    DBMS_OUTPUT.put_Line(sqlerrm||sqlcode);
+    when too_many_rows then
+    DBMS_OUTPUT.put_Line(sqlerrm||sqlcode);
+when others then
+    DBMS_OUTPUT.put_Line(sqlerrm||sqlcode);end;
+begin
+delete_orders(40000.00);
+end;
+rollback;
+
+----------------------------------------------------------task2-----------------------------------------
+create or replace function ordercount (descor PRODUCTS.DESCRIPTION%type)
+            return number
+                is
+            countorder number := 0;
+        begin
+        select COUNT(*) into countorder from  ORDERS
+            inner join PRODUCTS on ORDERS.PRODUCT = PRODUCTS.PRODUCT_ID
+                    where PRODUCTS.DESCRIPTION = descor;
+        return countorder;
+        end;
+    begin
+        DBMS_OUTPUT.PUT_LINE(ordercount('Reducer'));
+    end;
+----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------
+create or replace procedure arvg_sale(sname salesreps.name%type)
+is cursor curs is select orders.product 
+from orders join salesreps 
+on orders.rep = salesreps.empl_num where salesreps.name = sname order by salesreps.sales desc;
+    prod orders.product%type;
+    no_name1 exception;
+    pragma exception_init(no_name1,-20800);
+    AVGPRICE ORDERS.AMOUNT%TYPE;
+    REP_CODE salesreps.EMPL_NUM%TYPE;
+begin
+    if (sname is null)
+        then
+            raise no_name1;
+        end if;
+    select EMPL_NUM into REP_CODE
+        from salesreps
+        where NAME = sname;
+    select AVG(AMOUNT * QTY) into AVGPRICE
+        from ORDERS
+        where REP = REP_CODE;
+
+    dbms_output.put_line('Name: '||sname||' '||' Code: '||REP_CODE||'');
+    dbms_output.put_line('Average sum from orders: '||AVGPRICE||'');
+    dbms_output.put_line('List of products from orders: ');
+    open curs;
+    fetch curs into prod;
+    while curs%found
+    loop
+        dbms_output.put_line(prod);
+        fetch curs into prod;
+    end loop;
+
+    exception
+    when no_name1
+    then
+        dbms_output.put_line('No such name');
+    when others
+    then
+        dbms_output.put_line('exception = ' || sqlerrm);
+end;
+----------------------------------------
+create or replace PROCEDURE PRINT_ORDERS(CUST_NAME CUSTOMERS.COMPANY%TYPE)
+IS
+    TYPE CUR IS REF CURSOR;
+    TCUR CUR;
+    TROW ORDERS%ROWTYPE;
+    AVGPRICE ORDERS.AMOUNT%TYPE;
+    CUST_CODE CUSTOMERS.CUST_NUM%TYPE;
+BEGIN
+    SELECT CUST_NUM INTO CUST_CODE
+        FROM CUSTOMERS
+        WHERE COMPANY = CUST_NAME;
+
+    SELECT AVG(AMOUNT * QTY) INTO AVGPRICE
+        FROM ORDERS
+        WHERE CUST = CUST_CODE;
+
+    OPEN TCUR FOR
+        SELECT *
+        FROM ORDERS
+        WHERE CUST = CUST_CODE;
+    FETCH TCUR INTO TROW;
+    DBMS_OUTPUT.PUT_LINE('ORDERS OF '||CUST_NAME||'');
+
+    WHILE TCUR%FOUND LOOP
+        DBMS_OUTPUT.PUT_LINE(TROW.ORDER_NUM||' '||TROW.PRODUCT||' '||TROW.QTY||' '||TROW.AMOUNT);
+    FETCH TCUR INTO TROW;
+    END LOOP;
+
+    DBMS_OUTPUT.PUT_LINE('AVERAGE ORDER SUM: '||AVGPRICE||'');
+
+    CLOSE TCUR;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
+------------------------------------------------
+create or replace procedure task1( start_date orders.order_date%type, end_date orders.order_date%type)
+is cursor one is select distinct salesreps.name, orders.amount from salesreps inner join orders on orders.rep=salesreps.empl_num
+where order_date between start_date and end_date order by orders.amount desc;
+row one%rowtype;
+all_period exception;
+pragma exception_init(all_period, -20901);
+correct_date exception;
+pragma exception_init(correct_date, -20902);
+begin
+for row in one
+loop
+if start_date<to_date('04.01.07') and end_date>to_date('02.03.08') then raise all_period; 
+end if;
+dbms_output.put_line(row.name || ' ' || row.amount);
+end loop;
+if start_date>end_date then raise correct_date;
+end if;
+exception
+when all_period
+then dbms_output.put_line('you choose all period');
+when correct_date
+then dbms_output.put_line('star_date should be less then end_date');
+when others
+then dbms_output.put_line(sqlcode || ' ' || sqlerrm);
+end;
+----------------------------------------------------
+create or replace function AVERAGE_PRICE_FUNC(dateFrom orders.order_date%type, dateTo orders.order_date%type)
+return number
+is
+    cursor all_orders is select products.product_id, products.price from orders Inner Join products On orders.product=products.product_id 
+            where orders.order_date>=dateFrom and orders.order_date<=dateTo;
+    prod_id products.product_id%type;
+    prod_price products.price%type;
+    all_sum products.price%type := 0;
+    counter number(3) := 0;
+    invalid_params exception;
+    no_products exception;
+begin
+    if(dateFrom>dateTo)
+    then
+        raise invalid_params;
+    end if;
+    dbms_output.put_line('---All products ordered during this period:---');
+    open all_orders;
+    fetch all_orders into prod_id, prod_price;
+    if(all_orders%notfound)
+    then
+        raise no_products;
+    end if;
+    while(all_orders%found)
+    loop
+        dbms_output.put_line('id=' || prod_id || ', price=' || prod_price);
+        all_sum := all_sum + prod_price;
+        counter := counter+1;
+        fetch all_orders into prod_id, prod_price;
+    end loop;
+    --dbms_output.put_line('---Average sum of ordered products = ' || to_char(all_sum/counter,'99999.999'));
+    return all_sum/counter;
+    exception
+        when invalid_params
+            then dbms_output.put_line('Invslid parameters'); return -1;
+        when no_products
+            then dbms_output.put_line('No products ordered during this time'); return -1;
+        when others
+            then dbms_output.put_line('error=' || sqlerrm); return -1;
+end AVERAGE_PRICE_FUNC;
+-----
+create or replace function voshch(
+    start_date date,
+    end_date date)
+return number is rc number default -1;
+begin
+    select sum(amount)/sum(qty) into rc from orders where order_date > start_date and order_date < end_date; --avg(amount)
+    return rc;
+    exception
+        when others then
+            raise_application_error(20001, sqlerrm);
+            return -1;
+end;
+---------
+create or replace function FullCountOrders(date_start orders.order_date%TYPE, date_end orders.order_date%TYPE) return number
+is temp number;
+uncorrect_date exception;
+pragma exception_init(uncorrect_date,-20000);
+begin
+if (date_start > date_end) 
+    then raise uncorrect_date;
+end if;
+select sum(amount) into temp from orders where order_date between date_start and date_end;
+return temp;
+exception
+when uncorrect_date
+then dbms_output.put_line('start date must be less than end date');
+when others
+then
+dbms_output.put_line(sqlcode||'    '||sqlerrm);
+end;
+------------
+create or replace function get_orders_count(customer_name varchar2, v_year varchar2)
+    return int 
+    is order_count int;
+begin
+    select count(*) into order_count 
+    from orders 
+    where cust = 
+        (select cust_num
+        from customers 
+        where company = customer_name) 
+    and to_char(order_date, 'YYYY') = v_year;
+    return order_count;
+
+    exception
+        when others then
+            dbms_output.put_line('Error'||sqlerrm);
+end;
+-------------
+create or replace FUNCTION MIN_ORD(sname salesreps.name%type, syear number) RETURN DECIMAL IS
+incorrect_year exception;
+saler_not_found exception;
+min_amount orders.amount%type;
+ord_count number;
+BEGIN
+
+    if syear <= 0 
+    then raise incorrect_year;
+    end if;
+
+    select count(*)
+    into ord_count
+    from salesreps
+    where name = sname;
+
+    if ord_count = 0
+    then raise saler_not_found;
+    end if;
+
+    select min(p.price*o.qty)
+    into min_amount
+    from orders o inner join salesreps s
+    on o.rep = s.empl_num inner join products p
+    on o.product = p.product_id
+    where s.name = sname and extract(year from o.order_date) = syear;
+
+    return nvl(min_amount,0);
+EXCEPTION
+when incorrect_year then dbms_output.put_line('Incorrect year'); return -1;
+when saler_not_found then dbms_output.put_line('Saler not found'); return -1;
+when others then dbms_output.put_line('Exception: '||sqlcode); return -1;
+END;
+----------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!(1)
+create or replace FUNCTION min_order_sum_by_year(salesrep salesreps.empl_num%type, year VARCHAR)
+return number
+is
+    amount orders.amount%type;
+begin
+    amount := 0;
+
+    select min(o.amount) into amount
+    from salesreps s inner join orders o
+    on s.empl_num = o.rep
+    where s.empl_num = salesrep
+    and to_char(o.order_date, 'yyyy') = year;
+
+    return amount;
+end;
+--------------------------------
+create or replace procedure IncreacePrice (perc NUMBER, prod varchar, MFR varchar)
+is 
+begin
+   update products set price = price * (1 + perc / 100) where DESCRIPTION = prod And mfr_id = MFR;
+  EXCEPTION
+    when others
+        then
+            SYS.DBMS_OUTPUT.PUT_LINE('code error: ' || sqlcode || 'msg oracle: ' || sqlerrm);
+end;
+----------------------
+create or replace procedure myCutPoc(begin_date orders.order_date%type, end_date orders.order_date%type)
+is 
+    cursor c1 is select * from orders o join salesreps s on o.rep = s.empl_num where o.order_date between begin_date and end_date order by amount desc;
+    begin
+
+        for rec in c1
+        loop
+            DBMS_OUTPUT.PUT_LINE (rec.name || ' ' || rec.order_date || ' ' || rec.amount);
+        end loop;
+        exception
+            when OTHERS then dbms_output.put_line('Thrown exception ' || sqlcode);
+    end;
+
+------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!(2)
+create or replace procedure print_employees(startDate orders.order_date%type, endDate orders.order_date%type)
+is 
+cursor cur is select distinct s.name from salesreps s inner join orders o on s.empl_num = o.rep where o.order_date between startDate and endDate;
+row_name salesreps.name%type;
+uncorrect_date exception;
+pragma exception_init(uncorrect_date,-20998);
+begin
+if (startDate > endDate) 
+    then raise uncorrect_date;
+end if;
+    open cur;
+        loop
+            fetch cur into row_name;
+            exit when cur%notfound;
+            dbms_output.put_line(row_name);
+        end loop;
+    close cur;
+    exception when uncorrect_date
+        then dbms_output.put_line('start date must be less than end date');
+    when others then dbms_output.put_line(sqlcode||'    '||sqlerrm);
+end;
+----------------------
+create or replace procedure printSalesBtweenDat(begin_date orders.order_date%type, end_date orders.order_date%type)
+is 
+    cursor c1 is select  rep, sum(amount) as "sum" from orders o join
+    salesreps s on o.rep = s.empl_num
+    where o.order_date between begin_date and end_date group by rep order by sum(amount) desc;
+    begin
+
+        for rec in c1
+        loop
+            DBMS_OUTPUT.PUT_LINE (rec.rep ||  ' ' || rec."sum");
+        end loop;
+        exception
+            when OTHERS then dbms_output.put_line('Thrown exception ' || sqlcode || sqlerrm);
+    end;
+----------------------
+create or replace PROCEDURE soldProductsByRep(employee ORDERS.REP%TYPE) IS
+    cursor soldProductsByRepCursor is select ORDER_NUM, PRODUCT, AMOUNT from ORDERS where REP = employee ORDER BY AMOUNT DESC;
+    order_id ORDERS.ORDER_NUM%TYPE;
+    product_id ORDERS.PRODUCT%TYPE;
+    amount ORDERS.AMOUNT%TYPE;
+    rep SALESREPS.EMPL_NUM%TYPE := employee;
+    invalid_rep EXCEPTION;
+    PRAGMA EXCEPTION_INIT (invalid_rep, -20002);
+    no_orders EXCEPTION;
+    PRAGMA EXCEPTION_INIT (no_orders, -20001);
+    BEGIN
+        dbms_output.put_line('ORDER     ' || 'PRODUCT' || '    ' || 'AMOUNT');
+        open soldProductsByRepCursor;
+        loop
+            fetch soldProductsByRepCursor into order_id, product_id, amount;
+            dbms_output.put_line(order_id || '     ' || product_id || '     ' || amount);
+            exit when soldProductsByRepCursor%notfound;
+        end loop;
+        if rep is null then raise invalid_rep;
+        elsif rep > 110 and rep < 101 then raise invalid_rep;
+        elsif rep is not null and order_id is null then raise no_orders;
+        end if;
+        close soldProductsByRepCursor;
+    EXCEPTION
+        when invalid_rep
+            then dbms_output.put_line('There is no such employee');
+        when no_orders
+            then dbms_output.put_line('This employee does not have sold products');
+    END;
+----------------------
+create or replace procedure all_products(name_cond salesreps.name%type)
+is
+cursor cur is select orders.product, sum(orders.amount) summ from orders inner join salesreps on orders.rep = salesreps.empl_num 
+where salesreps.name = name_cond group by orders.product order by summ desc;
+productt orders.product%type;
+amountt orders.amount%type;
+namee salesreps.name%type;
+no_orders exception;
+pragma exception_init(no_orders, -900);
+begin
+select name into namee from salesreps where name = name_cond;
+
+open cur;
+fetch cur into productt, amountt;
+
+if cur%notfound
+then raise no_orders;
+end if;
+
+loop
+dbms_output.put_line('Product: ' || productt || '. Amount: ' || amountt);
+fetch cur into productt, amountt;
+exit when cur%notfound;
+end loop;
+
+close cur;
+
+exception
+when no_data_found
+then dbms_output.put_line('No such employee');
+when no_orders
+then dbms_output.put_line('No orders for this employee');
+end;
+-------------------------------------------
+
+create or replace procedure salesreps_orders(person_name salesreps.name%type)
+is
+    cursor ord_cur is 
+        select order_num
+        from orders
+        join salesreps on empl_num = rep
+        where name = person_name;
+    avg_price number;
+begin
+    if person_exists(person_name) = false then
+        raise_application_error(-20000, 'no such person');
+    end if;
+    for rec in ord_cur loop
+        dbms_output.put_line('order '|| rec.order_num);
+    end loop;
+    select avg(amount) into avg_price
+        from orders
+        join salesreps on empl_num = rep
+        where name = person_name;
+    dbms_output.put_line('avg price '|| avg_price);
+    exception when others then
+        dbms_output.put_line('exception in procedure');
+        raise;
+end;
+--------------------------------------------
+create or replace function CountOrdersAmount(
+    date_from orders.order_date%type,
+    date_to orders.order_date%type
+) return number
+is
+output orders.amount%type := 0;
+counter number := 0;
+WRONG_DATE_INTERVAL exception;
+NO_ORDERS exception;
+pragma exception_init(WRONG_DATE_INTERVAL, -20999);
+pragma exception_init(NO_ORDERS, -20998);
+begin
+    if (date_from > date_to) 
+    then
+        RAISE WRONG_DATE_INTERVAL;
+    end if;
+
+    select count(*) into counter from orders where order_date between date_from and date_to;
+
+    if (counter = 0)
+    then
+        RAISE NO_ORDERS;
+    end if;
+
+    select sum(amount) into output from orders where order_date between date_from and date_to;
+    return output;
+
+    exception
+        when WRONG_DATE_INTERVAL
+            then begin
+                dbms_output.put_line('Wrong date interval exception!');
+                return -3;
+            end;
+        when NO_ORDERS
+            then begin
+                dbms_output.put_line('No orders exception!');
+                return -2;
+            end;
+        when others
+            then begin 
+                dbms_output.put_line('There is exception: '||sqlcode||': '||sqlerrm);
+                return -1;
+            end;
+end;
+-----------------------------------------------------
+create or replace function person_exists(person_name salesreps.name%type) return boolean
+is
+    person_count number;
+begin
+    select count(empl_num) into person_count from salesreps where name = person_name;
+    return person_count > 0;
+end;
+----------------------------------------
+create or replace function SalesrepsCount
+(empl IN number, date1 IN varchar2, date2 IN varchar2)
+return number
+is
+scount number;
+ex_custom exception;
+begin
+select count(*)into scount from salesreps where salesreps.empl_num = empl;
+if scount = 0 then
+raise ex_custom;
+end if;
+select count(*) into scount from salesreps join orders on salesreps.empl_num = orders.rep 
+where orders.order_date >= date1 and orders.order_date <= date2
+and salesreps.empl_num = empl;
+return scount;
+exception 
+when ex_custom then
+dbms_output.put('No such eployee ');
+return 0;
+when others then
+dbms_output.put('Error has occured ');
+return 0;
+end;
